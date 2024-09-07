@@ -49,6 +49,7 @@ class Llava2Processor(BaseModelInference):
         self._extract_arguments(**kwargs)
         # Prepare images
         image_sizes = [self.raw_image.size]
+#         import pdb; pdb.set_trace()
         images_tensor = process_images(
             [self.raw_image], self.image_processor, self.model.config
         ).to(self.model.device, dtype=torch.float16)

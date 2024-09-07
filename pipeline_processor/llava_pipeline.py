@@ -18,6 +18,7 @@ sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from model_processor.llava2_model_processor import *
 from vision_processor.fps_gridview_processor import *
 from .record import *
+from data.STAR.video_clip import clip_video
 
 
 class LlavaPipeline:
@@ -72,10 +73,13 @@ class LlavaPipeline:
         extra_dir = "ffn=%s/" % (str(self.frame_fixed_number))
         self._make_directory(extra_dir)
 
-    def do_pipeline(self):
+    def do_pipeline(self, num_data):
         print("start pipeline")
 
         for idx, row in tqdm(self.df_qa.iterrows()):
+            if num_data != -1 and idx >= num_data: 
+                break
+            
             question_id = str(row["question_id"])
             video_path = row["path_video"]
             ts = row["ts"] if "ts" in row else None
@@ -98,10 +102,14 @@ class LlavaPipeline:
                         raw_image=image_data,
                     )
                     if -1 != answer:
+                        # answer = answer[0]
                         self.write_result_file(question_id, answer)
                     else:
                         self.error_video_name.append(video_path)
+                    # print(f'question_id: {question_id} \t answer: {answer[0]}')
                 except Exception as e:
+                    import traceback
+                    traceback.print_exc()
                     print(e)
                     print(video_path)
                     continue

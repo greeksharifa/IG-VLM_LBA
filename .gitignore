@@ -1,3 +1,16 @@
 
 pipeline_processor/.DS_Store
 .DS_Store
+
+data/NExT_QA/videos
+data/STAR/videos
+data/TVQA/videos
+data/IntentQA/videos
+data/EgoSchema/videos
+
+result_*/
+
+*pycache*/
+
+llava/
+llava
