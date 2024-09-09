@@ -73,8 +73,9 @@ class LlavaPipeline:
         extra_dir = "ffn=%s/" % (str(self.frame_fixed_number))
         self._make_directory(extra_dir)
 
-    def do_pipeline(self, num_data):
+    def do_pipeline(self, num_data, sub_qa_index):
         print("start pipeline")
+        # import pdb; pdb.set_trace()
 
         for idx, row in tqdm(self.df_qa.iterrows()):
             if num_data != -1 and idx >= num_data: 
@@ -85,7 +86,7 @@ class LlavaPipeline:
             ts = row["ts"] if "ts" in row else None
             video_extensions = ["avi", "mp4", "mkv", "webm", "gif"]
 
-            if not os.path.exists(video_path):
+            if not os.path.exists(video_path) and 'TVQA' not in video_path:
                 base_video_path, _ = os.path.splitext(video_path)
                 for ext in video_extensions:
                     temp_path = f"{base_video_path}.{ext}"
@@ -96,14 +97,20 @@ class LlavaPipeline:
             if not os.path.exists(self._make_file_path(question_id)):
                 try:
                     image_data = self.fps_data_processor.process([video_path], ts)
+                    
+                    prompt = self.user_prompt
+                    if sub_qa_index != "base":
+                        prompt = f'Context: {row["sub_question_" + sub_qa_index].rstrip("?")}? {row["sub_answer_" + sub_qa_index]}.\n' + prompt
 
-                    answer = self.model.infer_and_save(
-                        user_prompt=self.func_user_prompt(self.user_prompt, row),
+                    answer, confidence_score = self.model.infer_and_save(
+                        # user_prompt=self.func_user_prompt(self.user_prompt, row),
+                        user_prompt=self.func_user_prompt(prompt, row),
                         raw_image=image_data,
                     )
                     if -1 != answer:
                         # answer = answer[0]
                         self.write_result_file(question_id, answer)
+                        self.write_result_file(f'{question_id}_confidence_score', str(confidence_score))
                     else:
                         self.error_video_name.append(video_path)
                     # print(f'question_id: {question_id} \t answer: {answer[0]}')
@@ -147,11 +154,17 @@ class LlavaPipeline:
                 file_path = self._make_file_path(
                     question_id,
                 )
+                confidence_score_path = self._make_file_path(
+                    f'{question_id}_confidence_score',
+                )
                 if os.path.exists(file_path):
                     try:
                         with open(file_path, "r") as file:
                             file_contents = file.read()
                         self.df_qa.loc[idx, "pred"] = file_contents
+                        with open(confidence_score_path, "r") as file:
+                            file_contents = file.read()
+                        self.df_qa.loc[idx, "confidence_score"] = file_contents
                     except Exception as e:
                         print(file_path)
                         raise (e)

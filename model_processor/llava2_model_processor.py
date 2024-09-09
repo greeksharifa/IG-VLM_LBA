@@ -65,7 +65,22 @@ class Llava2Processor(BaseModelInference):
 
         # Generate output
         with torch.inference_mode():
-            output_ids = self.model.generate(
+            outputs = self.model.generate(
+                input_ids,
+                images=images_tensor,
+                image_sizes=image_sizes,
+                do_sample=False,
+                # temperature=1.0,
+                # top_p=0.9,
+                num_beams=5,
+                length_penalty=-1,
+                max_new_tokens=512,
+                use_cache=True,
+                return_dict_in_generate=True,
+                output_scores=True,
+            )
+            '''
+            outputs = self.model.generate(
                 input_ids,
                 images=images_tensor,
                 image_sizes=image_sizes,
@@ -76,14 +91,17 @@ class Llava2Processor(BaseModelInference):
                 max_new_tokens=512,
                 use_cache=True,
             )
+            '''
 
         # Decode and return outputs
-        self.result_rext = self.tokenizer.batch_decode(
-            output_ids, skip_special_tokens=True
+        self.result_text = self.tokenizer.batch_decode(
+            outputs.sequences, skip_special_tokens=True
         )[0].strip()
+        
+        self.confidence_score = torch.exp(outputs.sequences_scores).tolist()
 
     def extract_answers(self):
-        return self.result_rext.split("ASSISTANT:")[-1]
+        return self.result_text.split("ASSISTANT:")[-1], self.confidence_score[0]
 
     def _extract_arguments(self, **kwargs):
         self.user_prompt = kwargs["user_prompt"]

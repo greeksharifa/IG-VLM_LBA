@@ -25,6 +25,7 @@ def infer_and_eval_model(args):
     path_video = args.path_video
     # path with current timestamp
     path_result_dir = os.path.join(args.path_result, time.strftime("%Y%m%d_%H%M%S"))
+    path_result_dir = args.path_result
     llm_size = args.llm_size
 
     model_name, user_prompt = get_llava_and_prompt(llm_size)
@@ -74,7 +75,7 @@ def infer_and_eval_model(args):
         frame_fixed_number=frame_fixed_number,
         func_user_prompt=func_user_prompt,
     )
-    df_merged, path_df_merged = llavaPipeline.do_pipeline(args.num_data)
+    df_merged, path_df_merged = llavaPipeline.do_pipeline(args.num_data, args.sub_qa_index)
 
     print("llava prediction result : " + path_df_merged)
     print("start multiple-choice evaluation")
@@ -142,6 +143,9 @@ if __name__ == "__main__":
     
     parser.add_argument(
         "--num_data", type=int, default=-1, help="You can choose number of data to process."
+    )
+    parser.add_argument(
+        "--sub_qa_index", type=str, help="You can choose subqa name. base | 0 | 1 | 2 | 3 | 4"
     )
 
     args = parser.parse_args()
