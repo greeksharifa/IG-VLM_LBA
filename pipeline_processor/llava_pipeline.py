@@ -85,7 +85,7 @@ class LlavaPipeline:
             video_path = row["path_video"]
             ts = row["ts"] if "ts" in row else None
             video_extensions = ["avi", "mp4", "mkv", "webm", "gif"]
-
+            
             if not os.path.exists(video_path) and 'TVQA' not in video_path:
                 base_video_path, _ = os.path.splitext(video_path)
                 for ext in video_extensions:
@@ -94,17 +94,29 @@ class LlavaPipeline:
                         video_path = temp_path
                         break
 
+            """
+            if not os.path.exists(self._make_file_path(question_id)) or \
+                (sub_qa_index != "base" and ('%' in str(row["sub_question_" + sub_qa_index]) or '%' in str(row["sub_answer_" + sub_qa_index]))) or \
+                video_path in [
+                    './data/TVQA/videos/house_s08e19_seg02_clip_20.mp4',
+                    './data/TVQA/videos/castle_s07e23_seg02_clip_14.mp4',
+                    './data/TVQA/videos/house_s08e16_seg02_clip_08.mp4',
+                    './data/TVQA/videos/s01e16_seg02_clip_01.mp4',
+                    './data/TVQA/videos/castle_s04e16_seg02_clip_21.mp4',
+                ]:
+            """
             if not os.path.exists(self._make_file_path(question_id)):
                 try:
+                    # import pdb; pdb.set_trace()
                     image_data = self.fps_data_processor.process([video_path], ts)
                     
-                    prompt = self.user_prompt
+                    user_prompt = self.func_user_prompt(self.user_prompt, row)
+                    
                     if sub_qa_index != "base":
-                        prompt = f'Context: {row["sub_question_" + sub_qa_index].rstrip("?")}? {row["sub_answer_" + sub_qa_index]}.\n' + prompt
+                        user_prompt = f'Context: {row["sub_question_" + sub_qa_index].rstrip("?")}? {row["sub_answer_" + sub_qa_index]}.\n' + user_prompt
 
                     answer, confidence_score = self.model.infer_and_save(
-                        # user_prompt=self.func_user_prompt(self.user_prompt, row),
-                        user_prompt=self.func_user_prompt(prompt, row),
+                        user_prompt=user_prompt,
                         raw_image=image_data,
                     )
                     if -1 != answer:
@@ -115,10 +127,10 @@ class LlavaPipeline:
                         self.error_video_name.append(video_path)
                     # print(f'question_id: {question_id} \t answer: {answer[0]}')
                 except Exception as e:
+                    print(f'########Exception########:\nidx: {idx} \t question_id: {question_id} \t video_path: {video_path}')
                     import traceback
                     traceback.print_exc()
-                    print(e)
-                    print(video_path)
+                    import pdb; pdb.set_trace()
                     continue
 
         return self.merge_qa_and_answer()

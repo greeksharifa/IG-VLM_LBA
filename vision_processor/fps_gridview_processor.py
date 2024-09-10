@@ -64,10 +64,15 @@ def load_tvqa_frames(video_path, ts=None):
     image_paths = sorted(glob.glob(os.path.join(dir_path, '*.jpg')))
     
     start_time, end_time = ts.split("-")
-    start_frame = int(float(start_time) * 3)
-    end_frame = int(float(end_time) * 3)
-    # image_paths contains 3 fps images
-    image_paths = image_paths[start_frame:end_frame]
+    try:
+        start_frame = int(float(start_time) * 3)
+        end_frame = int(float(end_time) * 3)
+        if start_frame >= end_frame: # ts is not valid. ex) ts='55.99-55.99'
+            image_paths = [image_paths[start_frame]]
+        else:
+            image_paths = image_paths[start_frame:end_frame]
+    except: # ts is not valid. ex) ts='NaN-NaN'
+        pass
 
     idxs = np.linspace(0, len(image_paths)-1, 6, dtype=int) # ffn=6
     
