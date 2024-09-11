@@ -80,6 +80,8 @@ class LlavaPipeline:
         for idx, row in tqdm(self.df_qa.iterrows()):
             if num_data != -1 and idx >= num_data: 
                 break
+            # if idx < 7839:
+            #     continue
             
             question_id = str(row["question_id"])
             video_path = row["path_video"]

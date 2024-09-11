@@ -67,10 +67,14 @@ def load_tvqa_frames(video_path, ts=None):
     try:
         start_frame = int(float(start_time) * 3)
         end_frame = int(float(end_time) * 3)
-        if start_frame >= end_frame: # ts is not valid. ex) ts='55.99-55.99'
-            image_paths = [image_paths[start_frame]]
-        else:
+        if 0 <= start_frame < end_frame <= len(image_paths):
             image_paths = image_paths[start_frame:end_frame]
+        elif start_frame >= len(image_paths):
+            image_paths = [image_paths[-1]]
+        elif end_frame <= 0:
+            image_paths = [image_paths[0]]
+        else:
+            image_paths = [image_paths[start_frame]]
     except: # ts is not valid. ex) ts='NaN-NaN'
         pass
 
