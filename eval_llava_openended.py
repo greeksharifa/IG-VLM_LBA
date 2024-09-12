@@ -29,6 +29,8 @@ def infer_and_eval_model(args):
 
     model_name, user_prompt = get_llava_and_prompt(llm_size)
     frame_fixed_number = 6
+    
+    print('args.dataset_name:', args.dataset_name)
 
     print("loading [%s]" % (model_name))
 
@@ -42,7 +44,7 @@ def infer_and_eval_model(args):
         user_prompt,
         frame_fixed_number=frame_fixed_number,
     )
-    df_merged, path_df_merged = llavaPipeline.do_pipeline()
+    df_merged, path_df_merged = llavaPipeline.do_pipeline(args.num_data, args.sub_qa_index)
 
     print("llava prediction result : " + path_df_merged)
     print("start gpt3-evaluation")
@@ -116,6 +118,18 @@ if __name__ == "__main__":
         required=True,
         help="api key for gpt-3 evaluation",
     )
+    
+    parser.add_argument(
+        "--dataset_name", type=str, help="You can choose dataset name. STAR | NExT_QA | TVQA | intentqa | egoschema"
+    )
+    
+    parser.add_argument(
+        "--num_data", type=int, default=-1, help="You can choose number of data to process."
+    )
+    parser.add_argument(
+        "--sub_qa_index", type=str, help="You can choose subqa name. base | 0 | 1 | 2 | 3 | 4"
+    )
+    
     args = parser.parse_args()
 
     infer_and_eval_model(args)

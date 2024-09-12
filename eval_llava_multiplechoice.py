@@ -23,8 +23,6 @@ from evaluation.direct_answer_eval import *
 def infer_and_eval_model(args):
     path_qa = args.path_qa_pair_csv
     path_video = args.path_video
-    # path with current timestamp
-    path_result_dir = os.path.join(args.path_result, time.strftime("%Y%m%d_%H%M%S"))
     path_result_dir = args.path_result
     llm_size = args.llm_size
 
