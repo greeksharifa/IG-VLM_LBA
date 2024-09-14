@@ -5,10 +5,10 @@ from pprint import pprint
 from tqdm import tqdm
 
 
-sub_qas_filename = 'sub_qas_val_fewshot_vqaintrospect_unique' # 'sub_qas_val_xl'
+sub_qas_filename = 'sub_qas_val_xl_fewshot_vqaintrospect_unique' # 'sub_qas_val_xl'
 # dataset_names = ['NExT_QA', 'STAR', 'TVQA', 'IntentQA', 'EgoSchema']
-dataset_names = ['NExT_QA', 'STAR', 'TVQA']
-# dataset_names = ['TVQA']
+# dataset_names = ['NExT_QA', 'STAR', 'TVQA']
+dataset_names = ['IntentQA', 'EgoSchema']
 
 for dataset_name in dataset_names:
     # load the csv file to df
@@ -35,9 +35,9 @@ for dataset_name in dataset_names:
             elif dataset_name == 'TVQA':
                 question_id = int(key.split('_')[1]) + 122039
             elif dataset_name == 'IntentQA':
-                pass
+                question_id = key
             elif dataset_name == 'EgoSchema':
-                pass
+                question_id = key
             df.loc[df['question_id'] == question_id, f'sub_question_{i}'] = sub_qa[i][0]
             df.loc[df['question_id'] == question_id, f'sub_answer_{i}'] = sub_qa[i][1]
         # if data_iter > 1:
