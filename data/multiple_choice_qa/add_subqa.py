@@ -5,7 +5,7 @@ from pprint import pprint
 from tqdm import tqdm
 
 
-sub_qas_filename = 'sub_qas_val' # 'sub_qas_val_xl'
+sub_qas_filename = 'sub_qas_val_fewshot_vqaintrospect_unique' # 'sub_qas_val_xl'
 # dataset_names = ['NExT_QA', 'STAR', 'TVQA', 'IntentQA', 'EgoSchema']
 dataset_names = ['NExT_QA', 'STAR', 'TVQA']
 # dataset_names = ['TVQA']
