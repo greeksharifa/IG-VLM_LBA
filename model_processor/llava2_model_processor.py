@@ -42,7 +42,7 @@ class Llava2Processor(BaseModelInference):
             None,
             model_name,
             device=torch.cuda.current_device(),
-            device_map="cuda",
+            device_map="auto", # "cuda"
         )
 
     def inference(self, *args, **kwargs):
@@ -52,7 +52,7 @@ class Llava2Processor(BaseModelInference):
 #         import pdb; pdb.set_trace()
         images_tensor = process_images(
             [self.raw_image], self.image_processor, self.model.config
-        ).to(self.model.device, dtype=torch.float16)
+        ).to(dtype=torch.float16)#.to("cuda", dtype=torch.float16)#.to(self.model.device, dtype=torch.float16)
 
         # Prepare input_ids
         input_ids = (
@@ -60,8 +60,9 @@ class Llava2Processor(BaseModelInference):
                 self.user_prompt, self.tokenizer, IMAGE_TOKEN_INDEX, return_tensors="pt"
             )
             .unsqueeze(0)
-            .to(self.model.device)
+            # .to("cuda")#.to(self.model.device)
         )
+        # import pdb; pdb.set_trace()
 
         # Generate output
         with torch.inference_mode():

@@ -5,10 +5,10 @@ from pprint import pprint
 from tqdm import tqdm
 
 
-sub_qas_filename = 'sub_qas_val_xl_fewshot_vqaintrospect_unique' # 'sub_qas_val_xl'
-# dataset_names = ['NExT_QA', 'STAR', 'TVQA', 'IntentQA', 'EgoSchema']
+sub_qas_filename = 'sub_qas_val_xxl_fewshot_vqaintrospect_unique' # 'sub_qas_val_xl'
+dataset_names = ['NExT_QA', 'STAR', 'TVQA', 'IntentQA', 'EgoSchema']
 # dataset_names = ['NExT_QA', 'STAR', 'TVQA']
-dataset_names = ['IntentQA', 'EgoSchema']
+# dataset_names = ['IntentQA', 'EgoSchema']
 
 for dataset_name in dataset_names:
     # load the csv file to df
