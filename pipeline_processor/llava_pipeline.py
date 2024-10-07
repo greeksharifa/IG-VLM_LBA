@@ -73,7 +73,7 @@ class LlavaPipeline:
         extra_dir = "ffn=%s/" % (str(self.frame_fixed_number))
         self._make_directory(extra_dir)
 
-    def do_pipeline(self, num_data, sub_qa_index):
+    def do_pipeline(self, num_data, sub_qa_index, num_sub_qa_select):
         print("start pipeline")
         # import pdb; pdb.set_trace()
 
@@ -115,7 +115,19 @@ class LlavaPipeline:
                     user_prompt = self.func_user_prompt(self.user_prompt, row)
                     
                     if sub_qa_index != "base":
-                        user_prompt = f'Context: {row["sub_question_" + sub_qa_index].rstrip("?")}? {row["sub_answer_" + sub_qa_index]}.\n' + user_prompt
+                        context = 'Context:\n'
+                        
+                        for j in range(num_sub_qa_select):
+                            sq_idx = (int(sub_qa_index) + j) % 5
+                            sq_idx = str(sq_idx)
+                            context += f'{row["sub_question_" + sq_idx].rstrip("?")}? {row["sub_answer_" + sq_idx]}.\n'
+                            
+                        user_prompt = context + user_prompt
+                            
+                        # user_prompt = f'Context: {row["sub_question_" + sub_qa_index].rstrip("?")}? {row["sub_answer_" + sub_qa_index]}.\n' + user_prompt
+
+                    if idx == 0:
+                        print('*' * 40 + f'\nquestion_id: {question_id} \nuser_prompt:\n{user_prompt}\n' + '*' * 40)
 
                     answer, confidence_score = self.model.infer_and_save(
                         user_prompt=user_prompt,

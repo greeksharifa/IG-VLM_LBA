@@ -32,6 +32,8 @@ class Llava2Processor(BaseModelInference):
 
     def load_model(self):
         model_name = get_model_name_from_path(self.model_name)
+        device_map = "auto" if '34b' in model_name else "cuda"
+        self.device_map = device_map
         (
             self.tokenizer,
             self.model,
@@ -42,7 +44,7 @@ class Llava2Processor(BaseModelInference):
             None,
             model_name,
             device=torch.cuda.current_device(),
-            device_map="auto", # "cuda"
+            device_map=device_map, # "cuda", "auto"
         )
 
     def inference(self, *args, **kwargs):
@@ -62,7 +64,9 @@ class Llava2Processor(BaseModelInference):
             .unsqueeze(0)
             # .to("cuda")#.to(self.model.device)
         )
-        # import pdb; pdb.set_trace()
+        if self.device_map == "cuda":
+            input_ids = input_ids.to("cuda")
+            images_tensor = images_tensor.to("cuda")
 
         # Generate output
         with torch.inference_mode():

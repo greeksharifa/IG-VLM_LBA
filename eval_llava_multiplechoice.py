@@ -21,6 +21,7 @@ from evaluation.direct_answer_eval import *
 
 
 def infer_and_eval_model(args):
+    args.path_result = args.path_result.replace('_', '')
     path_qa = args.path_qa_pair_csv
     path_video = args.path_video
     path_result_dir = args.path_result
@@ -76,7 +77,7 @@ def infer_and_eval_model(args):
         frame_fixed_number=frame_fixed_number,
         func_user_prompt=func_user_prompt,
     )
-    df_merged, path_df_merged = llavaPipeline.do_pipeline(args.num_data, args.sub_qa_index)
+    df_merged, path_df_merged = llavaPipeline.do_pipeline(args.num_data, args.sub_qa_index, args.num_sub_qa_select)
 
     print("llava prediction result : " + path_df_merged)
     print("start multiple-choice evaluation")
@@ -147,6 +148,9 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--sub_qa_index", type=str, help="You can choose subqa name. base | 0 | 1 | 2 | 3 | 4"
+    )
+    parser.add_argument(
+        "--num_sub_qa_select", type=int, default=1, help="You can choose number of sub_qa."
     )
 
     args = parser.parse_args()
